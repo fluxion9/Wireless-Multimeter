@@ -1,14 +1,14 @@
-#define avprobe A0
+#define avprobe A4
 #define iprobe A1
-#define rprobe A2
-#define dvprobe A3
+#define rprobe A5
+#define dvprobe A2
 #include "ZMPT101B.h"
 ZMPT101B voltageSensor(avprobe);
 #include "ACS712.h"
 ACS712  ACS(iprobe, 5.0, 1023, 100);
 struct wMeter
 {
-    float dcv, acv, aca, res;
+    float dcv, acv, dca, res;
     void initializeSensors()
     {
         Serial.begin(9600);
@@ -19,7 +19,7 @@ struct wMeter
     {
         dcv = measureVoltageDC();
         acv = voltageSensor.getVoltageAC();
-        aca = ACS.mA_DC();
+        dca = ACS.mA_DC();
         res = measureRes(10000);
     }
     float measureVoltageDC(void)
@@ -36,13 +36,14 @@ struct wMeter
     }
     void sendReadings(void)
     {
-        String msg = "{dcv:" + String(dcv) + ",acv:" + String(acv) + ",aca:" + String(aca) + ",res:" + String(res) + "}";
+        String msg = "{dcv:" + String(dcv) + ",acv:" + String(acv) + ",dca:" + String(dca) + ",res:" + String(res) + "}";
         Serial.println(msg);
     }
     void runLoop()
     {
         takeReadings();
         sendReadings();
+        delay(500);
     }
 };
 wMeter meter;
